@@ -6,5 +6,4 @@
     - role: k3s
     - role: gateway-api
     - role: cilium
-    - role: traefik
     - role: cert-manager
