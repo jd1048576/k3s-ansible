@@ -1,0 +1,70 @@
+- name: Helm install cert manager
+  kubernetes.core.helm:
+    chart_ref: oci://quay.io/jetstack/charts/cert-manager
+    chart_version: "v{{ cert_manager_version }}"
+    create_namespace: true
+    release_name: cert-manager
+    release_namespace: cert-manager
+    release_values: "{{ cert_manager_values }}"
+  become: false
+  delegate_to: localhost
+
+- name: Check cert manager
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: cert-manager
+    namespace: cert-manager
+    wait: true
+  become: false
+  delegate_to: localhost
+
+- name: Check cert manager cainjector
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: cert-manager-cainjector
+    namespace: cert-manager
+    wait: true
+  become: false
+  delegate_to: localhost
+
+- name: Check cert manager webhook
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: cert-manager-webhook
+    namespace: cert-manager
+    wait: true
+  become: false
+  delegate_to: localhost
+
+- name: Apply cloudflare origin ca issuer crd
+  kubernetes.core.k8s:
+    state: present
+    resource_definition: "{{ lookup('ansible.builtin.url', cert_manager_cloudflare_origin_ca_crd_url + item, split_lines=False) | ansible.builtin.from_yaml_all }}"
+  become: false
+  delegate_to: localhost
+  loop:
+    - cert-manager.k8s.cloudflare.com_clusteroriginissuers.yaml
+    - cert-manager.k8s.cloudflare.com_originissuers.yaml
+
+- name: Helm install cloudflare origin ca issuer
+  kubernetes.core.helm:
+    chart_ref: oci://ghcr.io/cloudflare/origin-ca-issuer-charts/origin-ca-issuer
+    chart_version: "{{ cert_manager_cloudflare_origin_ca_version }}"
+    release_name: origin-ca-issuer
+    release_namespace: cert-manager
+    release_values: "{{ cert_manager_cloudflare_origin_ca_values }}"
+  become: false
+  delegate_to: localhost
+
+- name: Check cloudflare origin ca issuer
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: origin-ca-issuer
+    namespace: cert-manager
+    wait: true
+  become: false
+  delegate_to: localhost

@@ -1,0 +1,7 @@
+namespace: local
+name: k3s
+version: 0.0.0
+readme: README.md
+authors: []
+description: ""
+repository: https://github.com/jd1048576/k3s-ansible.git

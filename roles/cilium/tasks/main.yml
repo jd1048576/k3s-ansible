@@ -1,0 +1,133 @@
+- name: Helm install cilium
+  kubernetes.core.helm:
+    chart_ref: cilium
+    chart_repo_url: https://helm.cilium.io
+    chart_version: "{{ cilium_version }}"
+    release_name: cilium
+    release_namespace: kube-system
+    release_values: "{{ cilium_values }}"
+  become: false
+  delegate_to: localhost
+
+- name: Check cilium operator
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: cilium-operator
+    namespace: kube-system
+    wait: true
+  become: false
+  delegate_to: localhost
+
+- name: Check cilium agent
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: DaemonSet
+    name: cilium
+    namespace: kube-system
+    wait: true
+    wait_timeout: 300
+  become: false
+  delegate_to: localhost
+
+- name: Check cilium envoy
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: DaemonSet
+    name: cilium-envoy
+    namespace: kube-system
+    wait: true
+    wait_timeout: 300
+  become: false
+  delegate_to: localhost
+
+- name: Create internal cilium cidr group
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: cilium.io/v2
+      kind: CiliumCIDRGroup
+      metadata:
+        name: internal
+      spec:
+        externalCIDRs:
+          - 10.0.0.0/8
+          - 172.16.0.0/12
+          - 192.168.0.0/16
+  become: false
+  delegate_to: localhost
+
+- name: Fetch Cloudflare IPv4 list
+  ansible.builtin.uri:
+    url: https://www.cloudflare.com/ips-v4
+    return_content: true
+  register: cilium_cloudflare_ips
+  become: false
+  delegate_to: localhost
+
+- name: Create cloudflare cilium cidr group
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: cilium.io/v2
+      kind: CiliumCIDRGroup
+      metadata:
+        name: cloudflare
+      spec:
+        externalCIDRs: "{{ cilium_cloudflare_ips.content | ansible.builtin.split | ansible.builtin.sort }}"
+  become: false
+  delegate_to: localhost
+
+- name: Create host cilium network policy
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: cilium.io/v2
+      kind: CiliumClusterwideNetworkPolicy
+      metadata:
+        name: host
+      spec:
+        nodeSelector: {}
+        ingress:
+          - fromEntities:
+              - cluster
+          - fromCIDRSet:
+              - cidrGroupRef: internal
+          - icmps:
+              - fields:
+                  - type: 8
+        egress:
+          - toEntities:
+              - all
+  become: false
+  delegate_to: localhost
+
+- name: Create cilium load balancer ip pool
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: cilium.io/v2
+      kind: CiliumLoadBalancerIPPool
+      metadata:
+        name: default
+        namespace: kube-system
+      spec:
+        blocks:
+          - start: "{{ ansible_facts['default_ipv4']['address'] }}"
+  become: false
+  delegate_to: localhost
+
+- name: Create cilium l2 announcement policy
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: cilium.io/v2alpha1
+      kind: CiliumL2AnnouncementPolicy
+      metadata:
+        name: default
+      spec:
+        interfaces:
+          - ^eth[0-9]+
+        loadBalancerIPs: true
+  become: false
+  delegate_to: localhost

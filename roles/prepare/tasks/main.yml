@@ -1,0 +1,23 @@
+- name: Create systemd resolved.conf.d directory
+  ansible.builtin.file:
+    path: /etc/systemd/resolved.conf.d
+    state: directory
+    mode: "0755"
+
+- name: Create systemd-resolved disable-stub-listener.conf
+  ansible.builtin.copy:
+    src: disable-stub-listener.conf
+    dest: /etc/systemd/resolved.conf.d/disable-stub-listener.conf
+    mode: "0644"
+
+- name: Create resolve.conf symbolic link
+  ansible.builtin.file:
+    src: /run/systemd/resolve/resolv.conf
+    dest: /etc/resolv.conf
+    mode: "0644"
+    state: link
+
+- name: Restart systemd-resolved service
+  ansible.builtin.systemd_service:
+    name: systemd-resolved.service
+    state: restarted

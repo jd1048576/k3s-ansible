@@ -1,0 +1,23 @@
+cilium_version: 1.18.4
+cilium_values:
+  cluster:
+    name: default
+  envoy:
+    rollOutPods: true
+  gatewayAPI:
+    enabled: true
+  hostFirewall:
+    enabled: true
+  ipam:
+    operator:
+      clusterPoolIPv4PodCIDRList:
+        - 10.42.0.0/16
+  k8sServiceHost: "{{ ansible_facts['default_ipv4']['address'] }}"
+  k8sServicePort: 6443
+  kubeProxyReplacement: true
+  l2announcements:
+    enabled: true
+  operator:
+    replicas: 1
+    rollOutPods: true
+  rollOutCiliumPods: true

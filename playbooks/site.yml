@@ -1,0 +1,10 @@
+- name: Site
+  hosts: "{{ target | default('all') }}"
+  become: true
+  roles:
+    - role: prepare
+    - role: k3s
+    - role: gateway-api
+    - role: cilium
+    - role: traefik
+    - role: cert-manager

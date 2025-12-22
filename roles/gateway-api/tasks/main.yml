@@ -1,0 +1,6 @@
+- name: Apply gateway api manifest
+  kubernetes.core.k8s:
+    state: present
+    resource_definition: "{{ lookup('ansible.builtin.url', gateway_api_url, split_lines=False) | ansible.builtin.from_yaml_all }}"
+  become: false
+  delegate_to: localhost
