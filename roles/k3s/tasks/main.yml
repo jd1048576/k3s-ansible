@@ -10,7 +10,7 @@
 
 - name: Download k3s binary
   ansible.builtin.get_url:
-    url: https://github.com/k3s-io/k3s/releases/download/v{{ k3s_version }}/k3s-{{ k3s_architecture[ansible_facts["architecture"]] }}
+    url: https://github.com/k3s-io/k3s/releases/download/v{{ k3s_version }}/k3s{{ "" if ansible_facts["architecture"] == "x86_64" else "-" + k3s_architecture[ansible_facts["architecture"]] }}
     checksum: sha256:https://github.com/k3s-io/k3s/releases/download/v{{ k3s_version }}/sha256sum-{{ k3s_architecture[ansible_facts["architecture"]] }}.txt
     dest: /usr/local/bin/k3s
     mode: "0755"
@@ -29,7 +29,7 @@
 - name: Download k3s images
   ansible.builtin.get_url:
     url: https://github.com/k3s-io/k3s/releases/download/v{{ k3s_version }}/k3s-airgap-images-{{ k3s_architecture[ansible_facts["architecture"]] }}.tar.zst
-    checksum: sha256:https://github.com/k3s-io/k3s/releases/download/v{{ k3s_version }}/k3s-airgap-images-{{ k3s_architecture[ansible_facts["architecture"]] }}.sha256sum
+    checksum: sha256:https://github.com/k3s-io/k3s/releases/download/v{{ k3s_version }}/sha256sum-{{ k3s_architecture[ansible_facts["architecture"]] }}.txt
     dest: /var/lib/rancher/k3s/agent/images/k3s-airgap-images-{{ k3s_architecture[ansible_facts["architecture"]] }}.tar.zst
     mode: "0755"
 
@@ -39,9 +39,9 @@
     dest: "/var/lib/rancher/k3s/server/{{ item }}"
     mode: "0644"
   loop:
-    - admission-configuration.yaml
-    - audit.yaml
-    - event-rate-limit.yaml
+    - api-server-admission-configuration.yaml
+    - audit-policy.yaml
+    - event-rate-limit-configuration.yaml
 
 - name: Create k3s config file
   ansible.builtin.copy:
@@ -86,7 +86,7 @@
 
 - name: Set k3s cluster facts
   ansible.builtin.set_fact:
-    k3s_server: "{{ ansible_facts['default_ipv4']['address'] }}"
+    k3s_server: "{{ '127.0.0.1' if lookup('ansible.builtin.env', 'CI') else ansible_facts['default_ipv4']['address'] }}"
     k3s_config: "{{ k3s_config_raw['content'] | ansible.builtin.b64decode | ansible.builtin.from_yaml }}"
 
 - name: Set k3s kube config locally

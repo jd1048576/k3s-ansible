@@ -6,9 +6,9 @@ disable:
   - traefik
 flannel-backend: "none"
 kube-apiserver-arg:
-  - "admission-control-config-file=/var/lib/rancher/k3s/server/admission-configuration.yaml"
+  - "admission-control-config-file=/var/lib/rancher/k3s/server/api-server-admission-configuration.yaml"
   - "audit-log-path=/var/lib/rancher/k3s/server/logs/audit.log"
-  - "audit-policy-file=/var/lib/rancher/k3s/server/audit.yaml"
+  - "audit-policy-file=/var/lib/rancher/k3s/server/audit-policy.yaml"
   - "audit-log-maxage=30"
   - "audit-log-maxbackup=10"
   - "audit-log-maxsize=100"

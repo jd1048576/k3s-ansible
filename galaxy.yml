@@ -5,3 +5,8 @@ readme: README.md
 authors: []
 description: ""
 repository: https://github.com/jd1048576/k3s-ansible.git
+build_ignore:
+  - .ansible
+  - .github
+  - .venv
+  - .vscode

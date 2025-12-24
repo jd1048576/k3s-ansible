@@ -4,6 +4,6 @@
   roles:
     - role: prepare
     - role: k3s
-    - role: gateway-api
+    - role: gateway_api
     - role: cilium
-    - role: cert-manager
+    - role: cert_manager
