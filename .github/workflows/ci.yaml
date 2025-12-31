@@ -25,26 +25,26 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
         with:
           python-version: cpython@${{ env.PYTHON_VERSION }}
           version: ${{ env.UV_VERSION }}
-      - uses: azure/setup-kubectl@v4
+      - uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede # v4.0.1
         with:
           version: v${{ env.KUBECTL_VERSION }}
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
         with:
           version: ${{ env.HELM_VERSION }}
-      - uses: lima-vm/lima-actions/setup@v1
+      - uses: lima-vm/lima-actions/setup@55627e31b78637bf254a8b2a14da8ea7d12564e5 # v1.1.0
         with:
           version: v${{ env.LIMA_VERSION }}
       - run: |
           limactl start --name=default --containerd=none --mount-none --cpus=2 --memory=4 template:ubuntu-lts
           # Cilium
-          limactl shell default -- sudo mount bpffs -t bpf /sys/fs/bpf
+          limactl shell default -- sudo mount -t bpf bpffs /sys/fs/bpf
           limactl shell default -- sudo mount --make-shared /sys/fs/bpf
           limactl shell default -- sudo mkdir -p /run/cilium/cgroupv2
           limactl shell default -- sudo mount -t cgroup2 none /run/cilium/cgroupv2
