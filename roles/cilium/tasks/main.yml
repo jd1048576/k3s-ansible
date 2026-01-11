@@ -51,9 +51,7 @@
         name: internal
       spec:
         externalCIDRs:
-          - 10.0.0.0/8
-          - 172.16.0.0/12
-          - 192.168.0.0/16
+          - "{{ (ansible_facts['default_ipv4']['address'] + '/' + ansible_facts['default_ipv4']['netmask']) | ansible.utils.ipaddr('network/prefix') }}"
   become: false
   delegate_to: localhost
 
