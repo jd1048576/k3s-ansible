@@ -29,7 +29,6 @@ cert_manager_cloudflare_origin_ca_values:
     securityContext:
       fsGroup: 1000
       runAsNonRoot: true
-      runAsGroup: 1000
       runAsUser: 1000
       seccompProfile:
         type: RuntimeDefault
