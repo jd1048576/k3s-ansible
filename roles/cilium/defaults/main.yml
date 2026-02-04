@@ -1,5 +1,5 @@
 # renovate: datasource=git-tags depName=https://github.com/cilium/cilium extractVersion=v(?<version>.+)$
-cilium_version: 1.18.6
+cilium_version: 1.19.0
 cilium_values:
   cluster:
     name: default
