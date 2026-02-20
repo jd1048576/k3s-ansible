@@ -93,7 +93,8 @@
               - cidrGroupRef: internal
           - icmps:
               - fields:
-                  - type: 8
+                  - type: EchoRequest
+                    family: IPv4
         egress:
           - toEntities:
               - all
