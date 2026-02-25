@@ -1,5 +1,5 @@
 # renovate: datasource=git-tags depName=https://github.com/cert-manager/cert-manager extractVersion=v(?<version>.+)$
-cert_manager_version: 1.19.3
+cert_manager_version: 1.19.4
 cert_manager_values:
   config:
     apiVersion: controller.config.cert-manager.io/v1alpha1
