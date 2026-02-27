@@ -12,7 +12,7 @@ env:
   # renovate: datasource=git-tags depName=https://github.com/helm/helm extractVersion=v(?<version>.+)$
   HELM_VERSION: 3.20.0
   # renovate: datasource=git-tags depName=https://github.com/kubernetes/kubernetes extractVersion=v(?<version>.+)$
-  KUBECTL_VERSION: 1.35.1
+  KUBECTL_VERSION: 1.35.2
   # renovate: datasource=git-tags depName=https://github.com/lima-vm/lima extractVersion=v(?<version>.+)$
   LIMA_VERSION: 2.0.3
   PYTHON_VERSION: 3.12
