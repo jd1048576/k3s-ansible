@@ -21,7 +21,7 @@ jobs:
       LIMA_VERSION: 2.1.1
       PYTHON_VERSION: 3.12
       # renovate: datasource=git-tags depName=https://github.com/astral-sh/uv
-      UV_VERSION: 0.11.6
+      UV_VERSION: 0.11.7
     permissions:
       contents: read
     runs-on: ubuntu-latest
