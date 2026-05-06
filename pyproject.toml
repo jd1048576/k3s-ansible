@@ -3,7 +3,7 @@ name = "k3s-ansible"
 version = "0.0.0"
 description = ""
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
     "ansible==13.6.0",
     "ansible-dev-tools==26.4.6",
