@@ -14,9 +14,6 @@ kube-apiserver-arg:
   - "audit-log-maxsize=100"
   - "enable-admission-plugins=NodeRestriction,EventRateLimit"
   - "service-account-extend-token-expiration=false"
-  # MutatingAdmissionPolicy
-  - "feature-gates=MutatingAdmissionPolicy=true"
-  - "runtime-config=admissionregistration.k8s.io/v1beta1=true"
 kube-controller-manager-arg:
   - "terminated-pod-gc-threshold=100"
 kubelet-arg:

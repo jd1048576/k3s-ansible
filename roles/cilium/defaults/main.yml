@@ -1,5 +1,13 @@
 # renovate: datasource=git-tags depName=https://github.com/cilium/cilium extractVersion=^v(?<version>.+)$
 cilium_version: 1.19.4
+cilium_preflight_values:
+  agent: false
+  k8sServiceHost: "{{ ansible_facts['default_ipv4']['address'] }}"
+  k8sServicePort: 6443
+  operator:
+    enabled: false
+  preflight:
+    enabled: true
 cilium_values:
   cluster:
     name: default
