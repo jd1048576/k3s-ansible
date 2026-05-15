@@ -17,7 +17,7 @@
     mode: "0644"
     state: link
 
-- name: Restart systemd-resolved service
+- name: Restart systemd-resolved.service
   ansible.builtin.systemd_service:
     name: systemd-resolved.service
     state: restarted

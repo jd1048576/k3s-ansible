@@ -1,9 +1,20 @@
-- name: Site
+- name: Prepare hosts
   hosts: "{{ target | default('all') }}"
   become: true
   roles:
     - role: prepare
+
+- name: Install k3s
+  hosts: "{{ target | default('all') }}"
+  become: true
+  roles:
     - role: k3s
+
+- name: Apply cluster add-ons
+  hosts: "{{ target | default('all') }}"
+  become: false
+  run_once: true
+  roles:
     - role: gateway_api
     - role: cilium
     - role: cert_manager

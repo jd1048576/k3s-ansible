@@ -15,6 +15,13 @@
     dest: /usr/local/bin/k3s
     mode: "0755"
 
+- name: Download k3s images
+  ansible.builtin.get_url:
+    url: https://github.com/k3s-io/k3s/releases/download/v{{ k3s_version }}/k3s-airgap-images-{{ k3s_architecture[ansible_facts["architecture"]] }}.tar.zst
+    checksum: sha256:https://github.com/k3s-io/k3s/releases/download/v{{ k3s_version }}/sha256sum-{{ k3s_architecture[ansible_facts["architecture"]] }}.txt
+    dest: /var/lib/rancher/k3s/agent/images/k3s-airgap-images-{{ k3s_architecture[ansible_facts["architecture"]] }}.tar.zst
+    mode: "0755"
+
 - name: Create k3s symbolic links
   ansible.builtin.file:
     src: /usr/local/bin/k3s
@@ -25,13 +32,6 @@
     - crictl
     - ctr
     - kubectl
-
-- name: Download k3s images
-  ansible.builtin.get_url:
-    url: https://github.com/k3s-io/k3s/releases/download/v{{ k3s_version }}/k3s-airgap-images-{{ k3s_architecture[ansible_facts["architecture"]] }}.tar.zst
-    checksum: sha256:https://github.com/k3s-io/k3s/releases/download/v{{ k3s_version }}/sha256sum-{{ k3s_architecture[ansible_facts["architecture"]] }}.txt
-    dest: /var/lib/rancher/k3s/agent/images/k3s-airgap-images-{{ k3s_architecture[ansible_facts["architecture"]] }}.tar.zst
-    mode: "0755"
 
 - name: Create k3s server config files
   ansible.builtin.copy:
@@ -66,30 +66,30 @@
     - name: kernel.panic_on_oops
       value: 1
 
-- name: Create k3s systemd service
+- name: Create k3s.service
   ansible.builtin.copy:
     src: k3s.service
     dest: /etc/systemd/system/k3s.service
     mode: "0644"
 
-- name: Restart k3s systemd service
+- name: Restart k3s.service
   ansible.builtin.systemd_service:
     name: k3s.service
     daemon_reload: true
     enabled: true
     state: restarted
 
-- name: Read k3s kube config
+- name: Slurp k3s kubeconfig
   ansible.builtin.slurp:
     src: /etc/rancher/k3s/k3s.yaml
-  register: k3s_config_raw
+  register: k3s_kubeconfig_raw
 
-- name: Set k3s cluster facts
+- name: Set k3s facts
   ansible.builtin.set_fact:
     k3s_server: "{{ '127.0.0.1' if lookup('ansible.builtin.env', 'CI') else ansible_facts['default_ipv4']['address'] }}"
-    k3s_config: "{{ k3s_config_raw['content'] | ansible.builtin.b64decode | ansible.builtin.from_yaml }}"
+    k3s_kubeconfig: "{{ k3s_kubeconfig_raw['content'] | ansible.builtin.b64decode | ansible.builtin.from_yaml }}"
 
-- name: Set k3s kube config locally
+- name: Set k3s kubeconfig locally
   ansible.builtin.command:
     argv:
       - kubectl
@@ -101,15 +101,15 @@
     - key: "clusters.{{ k3s_server }}.server"
       value: "https://{{ k3s_server }}:6443"
     - key: "clusters.{{ k3s_server }}.certificate-authority-data"
-      value: "{{ k3s_config['clusters'][0]['cluster']['certificate-authority-data'] }}"
+      value: "{{ k3s_kubeconfig['clusters'][0]['cluster']['certificate-authority-data'] }}"
     - key: "contexts.{{ k3s_server }}.cluster"
       value: "{{ k3s_server }}"
     - key: "contexts.{{ k3s_server }}.user"
       value: "{{ k3s_server }}"
     - key: "users.{{ k3s_server }}.client-certificate-data"
-      value: "{{ k3s_config['users'][0]['user']['client-certificate-data'] }}"
+      value: "{{ k3s_kubeconfig['users'][0]['user']['client-certificate-data'] }}"
     - key: "users.{{ k3s_server }}.client-key-data"
-      value: "{{ k3s_config['users'][0]['user']['client-key-data'] }}"
+      value: "{{ k3s_kubeconfig['users'][0]['user']['client-key-data'] }}"
   become: false
   delegate_to: localhost
 

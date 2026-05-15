@@ -2,7 +2,6 @@
   kubernetes.core.helm_info:
     release_name: cilium
     release_namespace: kube-system
-  become: false
   delegate_to: localhost
   register: cilium_helm_info
 
@@ -16,7 +15,6 @@
         release_name: cilium-preflight
         release_namespace: kube-system
         release_values: "{{ cilium_preflight_values }}"
-      become: false
       delegate_to: localhost
 
     - name: Check cilium pre-flight DaemonSet
@@ -27,7 +25,6 @@
         namespace: kube-system
         wait: true
         wait_timeout: 600
-      become: false
       delegate_to: localhost
 
     - name: Check cilium pre-flight Deployment
@@ -37,7 +34,6 @@
         name: cilium-pre-flight-check
         namespace: kube-system
         wait: true
-      become: false
       delegate_to: localhost
 
     - name: Helm uninstall cilium pre-flight
@@ -45,7 +41,6 @@
         release_name: cilium-preflight
         release_namespace: kube-system
         release_state: absent
-      become: false
       delegate_to: localhost
 
 - name: Helm install cilium
@@ -55,7 +50,6 @@
     release_name: cilium
     release_namespace: kube-system
     release_values: "{{ cilium_values }}"
-  become: false
   delegate_to: localhost
 
 - name: Check cilium operator
@@ -65,7 +59,6 @@
     name: cilium-operator
     namespace: kube-system
     wait: true
-  become: false
   delegate_to: localhost
 
 - name: Check cilium agent
@@ -76,7 +69,6 @@
     namespace: kube-system
     wait: true
     wait_timeout: 600
-  become: false
   delegate_to: localhost
 
 - name: Check cilium envoy
@@ -87,7 +79,6 @@
     namespace: kube-system
     wait: true
     wait_timeout: 300
-  become: false
   delegate_to: localhost
 
 - name: Create internal cilium cidr group
@@ -101,16 +92,14 @@
       spec:
         externalCIDRs:
           - "{{ (ansible_facts['default_ipv4']['address'] + '/' + ansible_facts['default_ipv4']['netmask']) | ansible.utils.ipaddr('network/prefix') }}"
-  become: false
   delegate_to: localhost
 
 - name: Fetch Cloudflare IPv4 list
   ansible.builtin.uri:
     url: https://www.cloudflare.com/ips-v4
     return_content: true
-  register: cilium_cloudflare_ips
-  become: false
   delegate_to: localhost
+  register: cilium_cloudflare_ips
 
 - name: Create cloudflare cilium cidr group
   kubernetes.core.k8s:
@@ -122,7 +111,6 @@
         name: cloudflare
       spec:
         externalCIDRs: "{{ cilium_cloudflare_ips.content | ansible.builtin.split | ansible.builtin.sort }}"
-  become: false
   delegate_to: localhost
 
 - name: Create host cilium network policy
@@ -147,7 +135,6 @@
         egress:
           - toEntities:
               - all
-  become: false
   delegate_to: localhost
 
 - name: Create cilium load balancer ip pool
@@ -162,7 +149,6 @@
       spec:
         blocks:
           - start: "{{ ansible_facts['default_ipv4']['address'] }}"
-  become: false
   delegate_to: localhost
 
 - name: Create cilium l2 announcement policy
@@ -177,5 +163,4 @@
         interfaces:
           - ^eth[0-9]+
         loadBalancerIPs: true
-  become: false
   delegate_to: localhost
