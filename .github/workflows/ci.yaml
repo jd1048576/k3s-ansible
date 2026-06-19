@@ -18,7 +18,7 @@ jobs:
       # renovate: datasource=git-tags depName=https://github.com/kubernetes/kubernetes extractVersion=^v(?<version>.+)$
       KUBECTL_VERSION: 1.36.2
       # renovate: datasource=git-tags depName=https://github.com/lima-vm/lima extractVersion=^v(?<version>.+)$
-      LIMA_VERSION: 2.1.2
+      LIMA_VERSION: 2.1.3
       PYTHON_VERSION: 3.14
       # renovate: datasource=git-tags depName=https://github.com/astral-sh/uv
       UV_VERSION: 0.11.23
