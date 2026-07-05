@@ -1,3 +1,9 @@
+- name: Update system packages
+  ansible.builtin.apt:
+    cache_valid_time: 3600
+    upgrade: safe
+    update_cache: true
+
 - name: Create systemd resolved.conf.d directory
   ansible.builtin.file:
     path: /etc/systemd/resolved.conf.d
