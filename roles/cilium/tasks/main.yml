@@ -145,7 +145,6 @@
       kind: CiliumLoadBalancerIPPool
       metadata:
         name: default
-        namespace: kube-system
       spec:
         blocks:
           - start: "{{ ansible_facts['default_ipv4']['address'] }}"

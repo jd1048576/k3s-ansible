@@ -4,7 +4,8 @@ cert_manager_values:
   config:
     apiVersion: controller.config.cert-manager.io/v1alpha1
     kind: ControllerConfiguration
-    enableGatewayAPI: true
+    gatewayAPI:
+      enabled: true
   crds:
     enabled: true
 # renovate: datasource=git-tags depName=https://github.com/cloudflare/origin-ca-issuer extractVersion=^v(?<version>.+)$
