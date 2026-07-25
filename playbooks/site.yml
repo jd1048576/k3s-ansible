@@ -10,8 +10,15 @@
   roles:
     - role: k3s
 
+- name: Configure kubeconfig
+  hosts: localhost
+  become: false
+  run_once: true
+  roles:
+    - kubeconfig
+
 - name: Apply cluster add-ons
-  hosts: "{{ target | default('all') }}"
+  hosts: localhost
   become: false
   run_once: true
   roles:

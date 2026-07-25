@@ -1,0 +1,40 @@
+- name: Slurp k3s kubeconfig
+  ansible.builtin.slurp:
+    src: /etc/rancher/k3s/k3s.yaml
+  register: kubeconfig_raw
+  become: true
+  delegate_to: "{{ groups['all'][0] }}"
+
+- name: Set kubeconfig facts
+  ansible.builtin.set_fact:
+    kubeconfig_server: "{{ '127.0.0.1' if lookup('ansible.builtin.env', 'CI') else hostvars[groups['all'][0]].ansible_facts['default_ipv4']['address'] }}"
+    kubeconfig_value: "{{ kubeconfig_raw['content'] | ansible.builtin.b64decode | ansible.builtin.from_yaml }}"
+
+- name: Create kubeconfig directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.kube"
+    state: directory
+    mode: "0700"
+
+- name: Set k3s kubeconfig
+  kubernetes.core.kubeconfig:
+    clusters:
+      - behavior: replace
+        cluster:
+          certificate-authority-data: "{{ kubeconfig_value['clusters'][0]['cluster']['certificate-authority-data'] }}"
+          server: "https://{{ kubeconfig_server }}:6443"
+        name: "{{ kubeconfig_server }}"
+    contexts:
+      - behavior: replace
+        context:
+          cluster: "{{ kubeconfig_server }}"
+          user: "{{ kubeconfig_server }}"
+        name: "{{ kubeconfig_server }}"
+    current_context: "{{ kubeconfig_server }}"
+    path: "{{ ansible_facts['user_dir'] }}/.kube/config"
+    users:
+      - behavior: replace
+        name: "{{ kubeconfig_server }}"
+        user:
+          client-certificate-data: "{{ kubeconfig_value['users'][0]['user']['client-certificate-data'] }}"
+          client-key-data: "{{ kubeconfig_value['users'][0]['user']['client-key-data'] }}"

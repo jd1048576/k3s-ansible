@@ -15,6 +15,8 @@
     src: disable-stub-listener.conf
     dest: /etc/systemd/resolved.conf.d/disable-stub-listener.conf
     mode: "0644"
+  notify:
+    - Restart systemd-resolved.service
 
 - name: Create resolve.conf symbolic link
   ansible.builtin.file:
@@ -22,8 +24,5 @@
     dest: /etc/resolv.conf
     mode: "0644"
     state: link
-
-- name: Restart systemd-resolved.service
-  ansible.builtin.systemd_service:
-    name: systemd-resolved.service
-    state: restarted
+  notify:
+    - Restart systemd-resolved.service

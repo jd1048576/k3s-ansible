@@ -6,7 +6,6 @@
     release_name: cert-manager
     release_namespace: cert-manager
     release_values: "{{ cert_manager_values }}"
-  delegate_to: localhost
 
 - name: Check cert manager
   kubernetes.core.k8s_info:
@@ -15,7 +14,6 @@
     name: cert-manager
     namespace: cert-manager
     wait: true
-  delegate_to: localhost
 
 - name: Check cert manager cainjector
   kubernetes.core.k8s_info:
@@ -24,7 +22,6 @@
     name: cert-manager-cainjector
     namespace: cert-manager
     wait: true
-  delegate_to: localhost
 
 - name: Check cert manager webhook
   kubernetes.core.k8s_info:
@@ -33,13 +30,11 @@
     name: cert-manager-webhook
     namespace: cert-manager
     wait: true
-  delegate_to: localhost
 
 - name: Apply cloudflare origin ca issuer crd
   kubernetes.core.k8s:
     state: present
     resource_definition: "{{ lookup('ansible.builtin.url', cert_manager_cloudflare_origin_ca_crd_url + item, split_lines=False) | ansible.builtin.from_yaml_all }}"
-  delegate_to: localhost
   loop:
     - cert-manager.k8s.cloudflare.com_clusteroriginissuers.yaml
     - cert-manager.k8s.cloudflare.com_originissuers.yaml
@@ -51,7 +46,6 @@
     release_name: origin-ca-issuer
     release_namespace: cert-manager
     release_values: "{{ cert_manager_cloudflare_origin_ca_values }}"
-  delegate_to: localhost
 
 - name: Check cloudflare origin ca issuer
   kubernetes.core.k8s_info:
@@ -60,4 +54,3 @@
     name: origin-ca-issuer
     namespace: cert-manager
     wait: true
-  delegate_to: localhost
